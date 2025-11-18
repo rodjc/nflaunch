@@ -1,0 +1,17 @@
+
+// Give job names more descriptive names
+executor.jobName = {
+    def name = task.name.tokenize(':')[-1]
+        .toLowerCase()
+        .replaceAll(/[^a-z0-9]/, '-')
+        .replaceAll(/-+/, '-')
+        .replaceAll(/^-|-$/, '')
+        .take(50)
+
+    if (name[0] ==~ /\d/) name = "job-${name}"
+    if (name[-1] == '-') name += 'x'
+    
+    def workDirPrefix = task.workDir.toString().tokenize('/')
+
+    "${name}-${workDirPrefix[-2]}${workDirPrefix[-1][0..<6]}"
+}
