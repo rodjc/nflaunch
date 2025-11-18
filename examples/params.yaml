@@ -1,0 +1,2 @@
+input: /etc/nextflow/input/samplesheet.csv
+outdir: gs://YOUR_BASE_BUCKET/results/demo/

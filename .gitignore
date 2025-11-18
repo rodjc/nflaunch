@@ -1,0 +1,52 @@
+# Byte-compiled / cache / virtual environment
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.benchmarks/
+.venv/
+env/
+venv/
+.cache/
+.mypy_cache/
+coverage.*
+.coverage
+nosetests.xml
+*.cover
+*.log
+.ruff_cache/
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+nflaunch.egg-info/
+
+# IDE/editor/system files
+.DS_Store
+.metadata/
+.vscode/
+*.swp
+*.swo
+*.orig
+*~
+
+# Project/workflow-specific artifacts
+.nextflow*
+.gradle/
+.tmp
+.temp/
+output/
+logs/
+.notebooks/
+*.ipynb_checkpoints/
+
+# Test files
+.test/
+tests/__pycache__/
+.test-results/
+
+# Cloud/secret artifacts
+.env
+.env.*
