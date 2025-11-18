@@ -1,0 +1,41 @@
+// Location of the work directory
+workDir = 'gs://${base_bucket}/work'
+
+// Nextflow report and log files
+timeline {
+    enabled = true
+    file = 'gs://${remote_run_path}/${workflowrun_id}/logs/timeline_${log_suffix}.html'
+}
+
+trace {
+    enabled = true
+    file = 'gs://${remote_run_path}/${workflowrun_id}/logs/trace_${log_suffix}.txt'
+}
+
+report {
+    enabled = true
+    file = 'gs://${remote_run_path}/${workflowrun_id}/logs/report_${log_suffix}.html'
+}
+
+dag {
+    enabled = true
+    file = 'gs://${remote_run_path}/${workflowrun_id}/logs/dag_${log_suffix}.html'
+}
+
+// Basic settings for GCP Batch Executor
+process {
+    executor = 'google-batch'
+    resourceLabels = [ ${resource_labels} ]
+}
+
+google {
+    project = '${project_id}'
+    location = '${region}'
+    batch {
+        usePrivateAddress = '${use_private_address}'
+        spot = '${spot}'
+        network = '${network}'
+        subnetwork = '${subnetwork}'
+        serviceAccountEmail = '${service_account_email}'
+    }
+}
