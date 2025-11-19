@@ -76,6 +76,30 @@ Set your default project to avoid conflicts with other projects:
 gcloud config set project YOUR_PROJECT_ID
 ```
 
+### Set Environment Variable (Recommended)
+
+Set the `GOOGLE_CLOUD_PROJECT` environment variable to ensure consistent project usage across tools:
+
+**For Bash users (add to `~/.bashrc` or `~/.bash_profile`):**
+```bash
+export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+```
+
+**For Zsh users (add to `~/.zshrc`):**
+```bash
+export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+```
+
+To apply immediately in your current session:
+```bash
+export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+```
+
+Verify it's set:
+```bash
+echo $GOOGLE_CLOUD_PROJECT
+```
+
 ## Service Account Creation
 
 If you need to create a new service account for Batch jobs:

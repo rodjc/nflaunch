@@ -65,9 +65,15 @@ For detailed installation instructions, see the [Installation Guide](docs/instal
 Configure required permissions and authentication:
 
 ```bash
+# Set your GCP project
+export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+
 # Authenticate
 gcloud auth login
 gcloud auth application-default login
+
+# Set default project
+gcloud config set project $GOOGLE_CLOUD_PROJECT
 ```
 
 Enable the following APIs in your GCP project:
