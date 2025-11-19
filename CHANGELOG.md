@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-11-19
+
+### Fixed
+- `tomli` library dependency update
+- Documentation improvements: corrected plugin interface method, fixed class names in architecture docs, added missing repository layout folders
+- Installation guide updates: added PyPI installation instructions and README badge
+
 ## [0.1.0] - 2025-11-17
 
 ### Added
