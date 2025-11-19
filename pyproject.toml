@@ -34,7 +34,7 @@ dependencies = [
     "pyasn1-modules==0.4.2",
     "requests==2.32.4",
     "rsa==4.9.1",
-    "tomli==2.0.3",
+    "tomli==2.0.2",
     "urllib3==2.5.0",
 ]
 
