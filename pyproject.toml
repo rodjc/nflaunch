@@ -13,6 +13,19 @@ authors = [
 requires-python = ">=3.10"
 readme = "README.md"
 license = {file = "LICENSE"}
+keywords = ["nextflow", "bioinformatics", "cloud", "gcp", "pipeline", "workflow"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
 dependencies = [
     "cachetools==5.5.2",
     "certifi==2025.7.14",
@@ -37,6 +50,13 @@ dependencies = [
     "tomli==2.0.2",
     "urllib3==2.5.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/rodjc/nflaunch"
+Documentation = "https://github.com/rodjc/nflaunch/blob/main/README.md"
+Repository = "https://github.com/rodjc/nflaunch"
+Changelog = "https://github.com/rodjc/nflaunch/blob/main/CHANGELOG.md"
+Issues = "https://github.com/rodjc/nflaunch/issues"
 
 [project.scripts]
 nflaunch = "nflaunch.cli.main:main"
