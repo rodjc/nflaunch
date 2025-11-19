@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nflaunch"
-version = "0.1.0"
+version = "0.1.1"
 description = "Command-line tool to run Nextflow pipelines in the cloud"
 authors = [
     { name = "Rodrigo Jara Calogeropulos", email = "r.a.jara@prinsesmaximacentrum.nl" },
@@ -17,7 +17,6 @@ keywords = ["nextflow", "bioinformatics", "cloud", "gcp", "pipeline", "workflow"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
