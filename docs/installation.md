@@ -69,8 +69,13 @@ source ~/.zshrc
 
 After installation, you'll need to:
 
-1. **Configure GCP permissions** - See [GCP Setup Guide](gcp-setup.md)
-2. **Try the quickstart** - Follow the [Quickstart Guide](quickstart.md)
+1. **Set GCP project environment variable** (add to your shell profile for persistence):
+   ```bash
+   export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+   ```
+
+2. **Configure GCP permissions** - See [GCP Setup Guide](gcp-setup.md)
+3. **Try the quickstart** - Follow the [Quickstart Guide](quickstart.md)
 
 ## Troubleshooting
 
