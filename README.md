@@ -1,6 +1,7 @@
 # nflaunch
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://img.shields.io/pypi/v/nflaunch.svg)](https://pypi.org/project/nflaunch/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 `nflaunch` is a command-line tool designed to simplify the launching of **Nextflow pipelines** on cloud batch services.
@@ -38,11 +39,18 @@ Ensure you understand the configurations and implications of job submissions bef
 - [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) installed and authenticated
 
 ### Installation
-
 ```bash
+# Recommended: Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-pip install git+https://github.com/rodjc/nflaunch.git
+
+# Install nflaunch
+pip install nflaunch
+```
+**Optional:** Add `.venv/bin` to your `PATH` to use `nflaunch` without activating the virtual environment:
+```bash
+# Bash (for zsh use ~/.zshrc)
+echo "export PATH=\"$(pwd)/.venv/bin:\$PATH\"" >> ~/.bashrc && source ~/.bashrc
 ```
 
 **Verify installation:**

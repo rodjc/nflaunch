@@ -86,9 +86,9 @@ Plugins implement the `Plugin` base class and can:
 ### Plugin Lifecycle
 
 1. **Registration** - Plugin is registered in the plugin registry
-2. **Initialization** - Plugin receives CLI arguments and options
-3. **Execution** - Plugin's `run()` method is called before job submission
-4. **Configuration** - Plugin modifies the job config as needed
+2. **Initialization** - Plugin receives job configuration containing CLI arguments and plugin options
+3. **Execution** - Plugin's `load()` method is called before job submission
+4. **Configuration** - Plugin modifies the job config attributes as needed
 
 ### Plugin Interface
 
@@ -96,11 +96,17 @@ All plugins must implement:
 
 ```python
 from nflaunch.plugins.base import Plugin
+from nflaunch.backends.base import JobConfig
 
 class MyPlugin(Plugin):
-    def run(self, job_config: JobConfig) -> JobConfig:
+    def __init__(self, job_config: JobConfig) -> None:
+        super().__init__(job_config)
+        # Additional initialization if needed
+
+    def load(self) -> None:
         # Plugin logic here
-        return modified_job_config
+        # Access job config via self.job_config
+        # Modify job_config attributes as needed
 ```
 
 ## Developing Custom Plugins
@@ -127,11 +133,10 @@ To create a new plugin:
            return job_config
    ```
 
-3. Register the plugin in `nflaunch/plugins/__init__.py`:
+3. Register the plugin in `nflaunch/utils/registry.py`:
    ```python
-   from nflaunch.utils.registry import plugin_registry
    from nflaunch.plugins.my_plugin.my_plugin import MyPlugin
-
+   # Add to the bottom of the file with other plugin registrations:
    plugin_registry.register("my_plugin", MyPlugin)
    ```
 
@@ -149,12 +154,14 @@ To create a new plugin:
 
 ```python
 from nflaunch.plugins.base import Plugin
-from nflaunch.utils.logger import set_logger
+from nflaunch.backends.base import JobConfig
 
 class ExamplePlugin(Plugin):
-    def __init__(self, args, plugin_options):
-        self.logger = set_logger(self.__class__.__name__)
-        self.args = args
+    def __init__(self, job_config: JobConfig) -> None:
+        super().__init__(job_config)
+
+        # Access plugin options from job_config
+        plugin_options = self.job_config.plugin_options
 
         # Validate required options
         required = ["option1", "option2"]
@@ -165,13 +172,12 @@ class ExamplePlugin(Plugin):
         self.option1 = plugin_options["option1"]
         self.option2 = plugin_options["option2"]
 
-    def run(self, job_config):
+    def load(self) -> None:
         self.logger.info(f"Running ExamplePlugin with {self.option1}")
 
-        # Modify job_config as needed
-        job_config.custom_field = self.option2
-
-        return job_config
+        # Modify job_config attributes as needed
+        # Note: Modify self.job_config directly, don't return it
+        # Example: self.job_config.samplesheet = "/path/to/generated/samplesheet.csv"
 ```
 
 ## Troubleshooting
@@ -198,9 +204,9 @@ In dry-run mode, plugins should:
 - Log what they would do
 - Skip actual file operations
 - Skip cloud API calls
-- Return modified config without side effects
+- Still modify config attributes but log actions instead of performing them
 
-Check your plugin implementation handles the dry-run flag appropriately.
+Check the `self.job_config.dry_run` flag in your plugin implementation to handle dry-run appropriately.
 
 ## See Also
 

@@ -11,28 +11,45 @@ Before installing nflaunch, ensure you have:
 
 ## Installation
 
-### 1. Create a Virtual Environment (Recommended)
+### Step 1: Create Virtual Environment (Recommended)
 
 ```bash
+# Create virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
+
+# Activate virtual environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-### 2. Install nflaunch from GitHub
+### Step 2: Install nflaunch
+
+**Option A: Install from PyPI (Recommended)**
 
 ```bash
-pip install git+https://github.com/rodjc/nflaunch.git
+pip install nflaunch
 ```
 
-### 3. Verify Installation
+
+**Option B: Install from Source (Development)**
+
+```bash
+# Clone the repository
+git clone https://github.com/rodjc/nflaunch.git
+cd nflaunch
+
+# Install in development mode
+pip install -e ".[dev]"
+```
+
+### Step 3: Verify Installation
 
 ```bash
 nflaunch --help
 ```
 
-### 4. Make nflaunch Available on Your Shell PATH (Optional)
+### Step 4: Add to PATH (Optional)
 
-To use `nflaunch` without activating the environment each time, add the virtualenv's `bin` directory to your shell profile:
+To use `nflaunch` without activating the virtual environment each time, add the virtualenv's `bin` directory to your shell profile:
 
 **For Bash users (`~/.bashrc` or `~/.bash_profile`):**
 ```bash
@@ -46,7 +63,7 @@ echo "export PATH=\"$(pwd)/.venv/bin:\$PATH\"" >> ~/.zshrc
 source ~/.zshrc
 ```
 
-Adjust the path if you place the repository or virtual environment elsewhere.
+**Note:** Adjust the path if you created the virtual environment in a different location.
 
 ## Next Steps
 
@@ -73,12 +90,4 @@ If `nflaunch` is not found after installation, ensure your virtual environment i
 source .venv/bin/activate
 ```
 
-## Next Steps
-
-Verify the Google Cloud CLI is properly installed:
-
-```bash
-gcloud --version
-```
-
-For installation issues, refer to the [official Google Cloud SDK documentation](https://cloud.google.com/sdk/docs/install).
+For other installation issues, refer to the troubleshooting section above or open an issue on [GitHub](https://github.com/rodjc/nflaunch/issues).

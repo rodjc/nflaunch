@@ -50,6 +50,9 @@ This document describes the`nflaunch`repository structure and design patterns.
 │   ├── resources.config   # Example resource config
 │   ├── run_demo.sh        # Helper script
 │   └── samplesheet.csv    # Example samplesheet
+├── tests/                 # Unit tests
+│   ├── test_dependencies.py
+│   └── test_gcs_structure.py
 ├── pyproject.toml         # Build and tooling configuration
 ├── requirements.txt       # Python dependencies
 ├── CHANGELOG.md           # Version history
@@ -65,28 +68,46 @@ nflaunch uses abstract base classes to define interfaces for extensibility:
 
 **Backend Interface** (`backends/base.py`):
 ```python
-class Backend(ABC):
+class BatchClient(ABC):
     @abstractmethod
-    def submit_job(self, job_config: JobConfig) -> str:
-        """Submit job to the backend."""
+    def stage_resources(self) -> None:
+        """Stage input files and configuration artifacts to cloud storage."""
+        pass
+
+    @abstractmethod
+    def launch_job(self) -> None:
+        """Submit the job to the target cloud batch system."""
+        pass
+
+    @abstractmethod
+    def cancel_job(self) -> None:
+        """Terminate an active cloud batch job."""
         pass
 ```
 
 **Plugin Interface** (`plugins/base.py`):
 ```python
 class Plugin(ABC):
+    def __init__(self, job_config: JobConfig) -> None:
+        """Initialize the plugin with the active job configuration."""
+        pass
+
     @abstractmethod
-    def run(self, job_config: JobConfig) -> JobConfig:
-        """Execute plugin logic and modify job config."""
+    def load(self) -> None:
+        """Load and apply plugin-specific configuration data."""
         pass
 ```
 
 **Command Interface** (`command/base.py`):
 ```python
-class Command(ABC):
+class CommandBuilder(ABC):
+    def __init__(self, job_config: JobConfig) -> None:
+        """Initialize the command builder with the active job configuration."""
+        pass
+
     @abstractmethod
     def build(self) -> str:
-        """Build the command string."""
+        """Construct the complete command-line string needed to run the workflow."""
         pass
 ```
 
@@ -96,15 +117,23 @@ Backends and plugins are registered dynamically using a registry pattern:
 
 ```python
 # utils/registry.py
-class Registry:
-    def register(self, name: str, cls: type) -> None:
-        self._registry[name] = cls
+class BackendRegistry:
+    def register(self, key: str, batch_client_cls: type[BatchClient],
+                 job_config_builder_cls: type[JobConfigBuilder]) -> None:
+        self._registry[key] = (batch_client_cls, job_config_builder_cls)
 
-    def get(self, name: str) -> type:
-        return self._registry[name]
+    def get(self, key: str) -> tuple[type[BatchClient], type[JobConfigBuilder]]:
+        return self._registry[key]
 
-backend_registry = Registry()
-plugin_registry = Registry()
+class PluginRegistry:
+    def register(self, key: str, cls: type[Plugin]) -> None:
+        self._registry[key] = cls
+
+    def get(self, key: str) -> type[Plugin]:
+        return self._registry[key]
+
+backend_registry = BackendRegistry()
+plugin_registry = PluginRegistry()
 ```
 
 This allows easy addition of new backends and plugins without modifying core code.
@@ -214,34 +243,6 @@ def render_template(template_path: str, context: dict) -> str:
 User Args → JobConfig → Plugin Modification → Template Rendering → Cloud Submission
 ```
 
-## Extension Points
-
-### Adding a New Backend
-
-1. Create a new directory under `backends/` (e.g., `backends/aws/`)
-2. Implement the `Backend` abstract class
-3. Register in `utils/registry.py`:
-   ```python
-   backend_registry.register("aws-batch", AWSBatchBackend)
-   ```
-4. Add backend-specific CLI arguments in `cli/parser.py`
-
-### Adding a New Plugin
-
-1. Create a new directory under `plugins/` (e.g., `plugins/myplugin/`)
-2. Implement the `Plugin` abstract class
-3. Register in `plugins/__init__.py`:
-   ```python
-   plugin_registry.register("myplugin", MyPlugin)
-   ```
-4. Add plugin README with documentation
-
-### Adding a New Workflow Type
-
-1. Create a new command class in `command/` implementing `Command`
-2. Add workflow-specific logic in a new launcher
-3. Update CLI to support the new workflow type
-
 ## Type System
 
 nflaunch uses Python type hints extensively:
@@ -274,12 +275,6 @@ nflaunch uses Python's exception system with custom error types where appropriat
 
 ## Configuration Management
 
-### Environment Variables
-
-- `NF_LAUNCH_TMPDIR` - Custom temporary directory
-- `TMPDIR` - Fallback temporary directory
-- `NF_LAUNCH_LOG_LEVEL` - Logging level (DEBUG, INFO, WARNING, ERROR)
-
 ### Configuration Files
 
 - **User-provided**:
@@ -291,14 +286,6 @@ nflaunch uses Python's exception system with custom error types where appropriat
   - `gcp.config` - GCP-specific Nextflow config
   - `job_config.json` - Complete job configuration (dry-run)
   - `job_request.txt` - Batch API request (dry-run)
-
-## Testing Strategy
-
-While tests are currently not implemented (see improvement suggestions), the architecture supports:
-
-- **Unit tests** - For validators, utilities, command builders
-- **Integration tests** - For backend operations (with mocked APIs)
-- **End-to-end tests** - Using `--dry-run` mode
 
 ## See Also
 
