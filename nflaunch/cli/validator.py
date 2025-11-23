@@ -14,7 +14,7 @@ class Validator:
     """
 
     @staticmethod
-    def sa_email(email: str) -> str:
+    def sa_email(email: str | None) -> str | None:
         """
         Validate a service account email address.
 
@@ -22,11 +22,15 @@ class Validator:
             email: Candidate email address.
 
         Returns:
-            The original email if valid.
+            The original email if valid, or None if email is None.
 
         Raises:
             argparse.ArgumentTypeError: The email is not a valid service account address.
         """
+        # Allow None to pass through - validate_required_fields will handle missing values
+        if email is None:
+            return None
+
         # Simpler user-managed SA pattern: name@PROJECT_ID.iam.gserviceaccount.com
         # name/project: start with a letter; then [a-z0-9-]*
         GSA_USER_MANAGED_RE = re.compile(
@@ -34,7 +38,7 @@ class Validator:
         )
 
         try:
-            if not GSA_USER_MANAGED_RE.match(email or ""):
+            if not GSA_USER_MANAGED_RE.match(email):
                 raise ValueError(
                     "Invalid service account email. Expected 'name@PROJECT_ID.iam.gserviceaccount.com'"
                 )
@@ -112,7 +116,7 @@ class Validator:
         raise argparse.ArgumentTypeError("Backend must be 'google-batch' (alias: 'gcp-batch').")
 
     @staticmethod
-    def bucket_name(bucket: str) -> str:
+    def bucket_name(bucket: str | None) -> str | None:
         """
         Accept `my-bucket` or `gs://my-bucket` and return `my-bucket`.
 
@@ -120,11 +124,15 @@ class Validator:
             bucket: Bucket identifier from the CLI.
 
         Returns:
-            Bucket name without scheme or trailing slashes.
+            Bucket name without scheme or trailing slashes, or None if bucket is None.
 
         Raises:
             argparse.ArgumentTypeError: The bucket is empty after normalization.
         """
+        # Allow None to pass through - validate_required_fields will handle missing values
+        if bucket is None:
+            return None
+
         b = bucket.split("/")[-1]
         if not b:
             raise argparse.ArgumentTypeError("Base bucket cannot be empty.")
@@ -178,3 +186,39 @@ class Validator:
         if not abs_path.exists():
             raise argparse.ArgumentTypeError(f"Path does not exist: {s}")
         return str(abs_path)
+
+    @staticmethod
+    def validate_required_fields(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
+        """
+        Validate that required fields are present from either CLI or environment variables.
+
+        Args:
+            args: Parsed argument namespace.
+            parser: Argument parser instance for error reporting.
+
+        Raises:
+            SystemExit: If any required field is missing from both sources.
+        """
+        required_fields = [
+            ("base_bucket", "--base-bucket", "NFL_GCP_BASE_BUCKET"),
+            ("project_id", "--project-id", "NFL_GCP_PROJECT_ID"),
+            ("region", "--region", "NFL_GCP_REGION"),
+            ("service_account_email", "--service-account-email", "NFL_GCP_SERVICE_ACCOUNT"),
+            ("network", "--network", "NFL_GCP_NETWORK"),
+            ("subnetwork", "--subnetwork", "NFL_GCP_SUBNETWORK"),
+            ("pipeline_name", "--pipeline-name", None),  # No env var for pipeline name
+        ]
+
+        errors = []
+        for attr_name, cli_flag, env_var in required_fields:
+            value = getattr(args, attr_name, None)
+            if not value:
+                if env_var:
+                    errors.append(
+                        f"{cli_flag} is required (provide via command line or {env_var} environment variable)"
+                    )
+                else:
+                    errors.append(f"{cli_flag} is required")
+
+        if errors:
+            parser.error("\n".join(errors))
