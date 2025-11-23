@@ -1,6 +1,7 @@
 """Command-line argument parser for nflaunch."""
 
 import argparse
+import os
 import sys
 from importlib.metadata import version
 
@@ -36,11 +37,12 @@ def parse_args() -> argparse.Namespace:
     general.add_argument(
         "-b",
         "--base-bucket",
-        required=True,
+        required=False,
+        default=os.getenv("NFL_GCP_BASE_BUCKET"),
         type=Validator.bucket_name,
         help=(
             "Cloud storage bucket used for configs, logs, cache, and work directories "
-            "(e.g., gs://my-bucket or my-bucket)."
+            "(e.g., gs://my-bucket or my-bucket). Can also be set via NFL_GCP_BASE_BUCKET."
         ),
         metavar="",
     )
@@ -98,34 +100,42 @@ def parse_args() -> argparse.Namespace:
     # GCP Batch options
     google_batch = parser.add_argument_group("GCP Batch options")
     google_batch.add_argument(
-        "--project-id", required=True, help="Google Cloud project ID.", metavar=""
+        "--project-id",
+        required=False,
+        default=os.getenv("NFL_GCP_PROJECT_ID"),
+        help="Google Cloud project ID. Can also be set via NFL_GCP_PROJECT_ID.",
+        metavar="",
     )
     google_batch.add_argument(
         "--region",
-        required=True,
-        help="Google Cloud region in which to run the Batch job.",
+        required=False,
+        default=os.getenv("NFL_GCP_REGION"),
+        help="Google Cloud region in which to run the Batch job. Can also be set via NFL_GCP_REGION.",
         metavar="",
     )
     google_batch.add_argument(
         "--service-account-email",
-        required=True,
+        required=False,
+        default=os.getenv("NFL_GCP_SERVICE_ACCOUNT"),
         type=Validator.sa_email,
         help=(
             "Service account email with permissions to launch Batch jobs and access "
-            "Google Cloud Storage."
+            "Google Cloud Storage. Can also be set via NFL_GCP_SERVICE_ACCOUNT."
         ),
         metavar="",
     )
     google_batch.add_argument(
         "--network",
-        required=True,
-        help="VPC network name to attach to the VM (required for shared VPCs).",
+        required=False,
+        default=os.getenv("NFL_GCP_NETWORK"),
+        help="VPC network name to attach to the VM. Can also be set via NFL_GCP_NETWORK.",
         metavar="",
     )
     google_batch.add_argument(
         "--subnetwork",
-        required=True,
-        help="Subnetwork name to attach to the VM (required for shared VPCs).",
+        required=False,
+        default=os.getenv("NFL_GCP_SUBNETWORK"),
+        help="Subnetwork name to attach to the VM. Can also be set via NFL_GCP_SUBNETWORK.",
         metavar="",
     )
     google_batch.add_argument(
@@ -253,4 +263,6 @@ def parse_args() -> argparse.Namespace:
         parser.print_help()
         parser.exit()
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    Validator.validate_required_fields(args, parser)
+    return args
