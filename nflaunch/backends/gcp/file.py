@@ -37,12 +37,17 @@ def parse_gcs_path(gcs_uri: str) -> tuple[str, str]:
 
 
 def get_latest_file(
-    bucket_name: str, bucket_prefix: str, filename_prefix: str | None, filename_extension: str
+    project_id: str,
+    bucket_name: str,
+    bucket_prefix: str,
+    filename_prefix: str | None,
+    filename_extension: str,
 ) -> str:
     """
     Return the most recently updated object within a prefix that matches the extension.
 
     Args:
+        project_id: GCP project ID.
         bucket_name: Name of the bucket to inspect.
         bucket_prefix: Object prefix to limit the search.
         filename_prefix: Optional filename prefix filter.
@@ -51,7 +56,7 @@ def get_latest_file(
     Returns:
         Fully qualified GCS URI of the latest matching file, or an empty string if none exist.
     """
-    client = storage.Client()
+    client = storage.Client(project=project_id)
     bucket = client.bucket(bucket_name)
 
     blobs = bucket.list_blobs(prefix=bucket_prefix)
@@ -97,11 +102,11 @@ class GCPFileUploader(FileUploader):
             FileNotFoundError: The file could not be located or read.
             google.api_core.GoogleAPIError: The upload failed due to GCS issues.
         """
+        file_path = Path(local_path).resolve()
         try:
-            storage_client = storage.Client()
+            storage_client = storage.Client(project=self.job_config.project_id)
             bucket_name, prefix = parse_gcs_path("gs://" + self.job_config.remote_run_path)
             bucket = storage_client.bucket(bucket_name)
-            file_path = Path(local_path).resolve()
             file_name = file_path.name
 
             # Determine subdirectory based on file type
@@ -155,7 +160,7 @@ class GCPFileUploader(FileUploader):
                 f"[DRY-RUN] Found {len(string_paths)} files in {directory_path_obj} ready to upload"
             )
         bucket_name, prefix = parse_gcs_path("gs://" + self.job_config.remote_run_path)
-        storage_client = storage.Client()
+        storage_client = storage.Client(project=self.job_config.project_id)
         bucket = storage_client.bucket(bucket_name)
 
         blob_name_prefix = f"{prefix}/{self.job_config.workflowrun_id}/config/{directory_name}/"

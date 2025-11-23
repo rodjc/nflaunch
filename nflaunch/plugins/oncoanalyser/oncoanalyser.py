@@ -4,6 +4,7 @@ import csv
 from pathlib import Path
 
 from nflaunch.backends.gcp.file import get_latest_file, parse_gcs_path
+from nflaunch.backends.gcp.job import GCPJobConfig
 from nflaunch.plugins.base import Plugin
 
 
@@ -16,6 +17,8 @@ class OncoanalyserPlugin(Plugin):
     latest BAM/CRAM assets from a remote GCS bucket. The bucket location and file extensions are
     provided via `--plugin-options`, while tumor/normal IDs arrive via `--sample-id`.
     """
+
+    job_config: GCPJobConfig
 
     def load(self) -> None:
         """
@@ -59,12 +62,14 @@ class OncoanalyserPlugin(Plugin):
         tumor_id, normal_id = (part.strip() for part in sample_id.split(",", maxsplit=1))
 
         tumor_bam = get_latest_file(
+            project_id=job_config.project_id,
             bucket_name=bucket_name,
             bucket_prefix=bucket_prefix,
             filename_prefix=tumor_id,
             filename_extension=filename_extension,
         )
         normal_bam = get_latest_file(
+            project_id=job_config.project_id,
             bucket_name=bucket_name,
             bucket_prefix=bucket_prefix,
             filename_prefix=normal_id,
