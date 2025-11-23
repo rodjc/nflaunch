@@ -8,7 +8,7 @@ Complete reference for all `nflaunch` command-line options.
 
 | Flag                          | Type         | Description                                                                                                         |
 | ----------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `--base-bucket`               | string       | Bucket for configs, logs, cache, and work dirs. Accepts `my-bucket` or `gs://my-bucket`. Internally normalized to a bucket name (no `gs://`). |
+| `--base-bucket`               | string       | Bucket for configs, logs, cache, and work dirs. Accepts `my-bucket` or `gs://my-bucket`. Internally normalized to a bucket name (no `gs://`). **Required** (or set via `NFL_GCP_BASE_BUCKET`). |
 
 ### Optional
 
@@ -29,11 +29,11 @@ Complete reference for all `nflaunch` command-line options.
 
 | Flag                          | Type         | Description                                                                                                         |
 | ----------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `--project-id`                | string       | Google Cloud project ID.                                                                                            |
-| `--region`                    | string       | Google Cloud region in which to run the Batch job.                                                                  |
-| `--service-account-email`     | string       | Runner job service account.                                                                                         |
-| `--network`                   | string       | VPC network name where the jobs will run.                                                                           |
-| `--subnetwork`                | string       | Subnetwork name where the jobs will run.                                                                            |
+| `--project-id`                | string       | Google Cloud project ID. **Required** (or set via `NFL_GCP_PROJECT_ID`).                                      |
+| `--region`                    | string       | Google Cloud region in which to run the Batch job. **Required** (or set via `NFL_GCP_REGION`).                |
+| `--service-account-email`     | string       | Runner job service account. **Required** (or set via `NFL_GCP_SERVICE_ACCOUNT`).                              |
+| `--network`                   | string       | VPC network name where the jobs will run. **Required** (or set via `NFL_GCP_NETWORK`).                        |
+| `--subnetwork`                | string       | Subnetwork name where the jobs will run. **Required** (or set via `NFL_GCP_SUBNETWORK`).                      |
 
 ### Optional
 
@@ -85,11 +85,11 @@ Complete reference for all `nflaunch` command-line options.
 ```bash
 nflaunch \
   --base-bucket my-bucket \
-  --pipeline-name nf-core/rnaseq \
-  --pipeline-version 3.14.0 \
+  --pipeline-name nf-core/demo \
+  --pipeline-version 1.0.2 \
   --params-file params.yaml \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
@@ -100,28 +100,26 @@ nflaunch \
 ```bash
 nflaunch \
   --base-bucket my-bucket \
-  --pipeline-name nf-core/sarek \
+  --pipeline-name nf-core/demo \
+  --pipeline-version 1.0.2 \
   --params-file params.yaml \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default \
   --dry-run
 ```
 
-### Local Pipeline with Custom Resources
+### Local Pipeline
 
 ```bash
 nflaunch \
   --base-bucket my-bucket \
-  --pipeline-name /path/to/pipeline \
+  --pipeline-name /local/path/to/pipeline \
   --config-file resources.config \
-  --machine-type e2-standard-4 \
-  --cpu-milli 4000 \
-  --memory-mib 16000 \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
@@ -138,11 +136,41 @@ nflaunch \
   --plugin-options '{"remote_sample_bucket_uri": "gs://samples", "filetype": "bam"}' \
   --sample-id TUMOR123,NORMAL456 \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
 ```
+
+### Using Environment Variables
+
+Set defaults for Google Cloud configuration to reduce command-line verbosity:
+
+```bash
+export NFL_GCP_PROJECT_ID="my-project"
+export NFL_GCP_REGION="europe-west4"
+export NFL_GCP_SERVICE_ACCOUNT="sa@my-project.iam.gserviceaccount.com"
+export NFL_GCP_NETWORK="default"
+export NFL_GCP_SUBNETWORK="default"
+export NFL_GCP_BASE_BUCKET="my-bucket"
+```
+Now run with minimal arguments
+```bash
+nflaunch \
+  --pipeline-name nf-core/demo \
+  --pipeline-version 1.0.2 \
+  --params-file params.yaml
+```
+Override a specific setting when needed
+```bash
+nflaunch \
+  --pipeline-name nf-core/demo \
+  --pipeline-version 1.0.2 \
+  --params-file params.yaml \
+  --region europe-west1
+```
+
+See [GCP Setup - Environment Variables](gcp-setup.md#environment-variables) for more details.
 
 ### Resuming a Previous Run
 
@@ -150,9 +178,9 @@ nflaunch \
 nflaunch \
   --base-bucket my-bucket \
   --pipeline-name nf-core/rnaseq \
-  --resume da0b69db-fb80-4474-a46d-61ef7a118617,a1b2c3d4-e5f6-7890 \
+  --resume WORKFLOWRUN_ID,SESSION_ID \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
@@ -167,7 +195,7 @@ nflaunch \
   --params-file params.yaml \
   --no-spot \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
@@ -180,9 +208,9 @@ nflaunch \
   --base-bucket my-bucket \
   --pipeline-name nf-core/atacseq \
   --params-file params.yaml \
-  --labels '{"project": "research", "team": "bioinformatics", "cost-center": "lab-a"}' \
+  --labels '{"project": "research", "team": "bioinformatics"}' \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default

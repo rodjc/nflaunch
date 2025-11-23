@@ -15,7 +15,7 @@ Before installing nflaunch, ensure you have:
 
 ```bash
 # Create virtual environment
-python3 -m venv .venv
+python -m venv .venv
 
 # Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -29,16 +29,12 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install nflaunch
 ```
 
-
 **Option B: Install from Source (Development)**
 
 ```bash
-# Clone the repository
 git clone https://github.com/rodjc/nflaunch.git
 cd nflaunch
-
-# Install in development mode
-pip install -e ".[dev]"
+pip install -e .
 ```
 
 ### Step 3: Verify Installation
@@ -69,13 +65,8 @@ source ~/.zshrc
 
 After installation, you'll need to:
 
-1. **Set GCP project environment variable** (add to your shell profile for persistence):
-   ```bash
-   export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
-   ```
-
-2. **Configure GCP permissions** - See [GCP Setup Guide](gcp-setup.md)
-3. **Try the quickstart** - Follow the [Quickstart Guide](quickstart.md)
+1. **Configure GCP permissions** - See [GCP Setup Guide](gcp-setup.md)
+2. **Try the quickstart** - Follow the [Quickstart Guide](quickstart.md)
 
 ## Troubleshooting
 
@@ -84,7 +75,7 @@ After installation, you'll need to:
 If you encounter version conflicts, ensure you're using Python 3.10 or higher:
 
 ```bash
-python3 --version
+python --version
 ```
 
 ### Virtual Environment Issues
@@ -94,5 +85,3 @@ If `nflaunch` is not found after installation, ensure your virtual environment i
 ```bash
 source .venv/bin/activate
 ```
-
-For other installation issues, refer to the troubleshooting section above or open an issue on [GitHub](https://github.com/rodjc/nflaunch/issues).

@@ -1,6 +1,6 @@
 # Quickstart Guide
 
-This guide will help you run your first Nextflow pipeline with`nflaunch`on Google Cloud Batch.
+This guide will help you run your first Nextflow pipeline with `nflaunch` on Google Cloud Batch.
 
 ## Before You Begin
 
@@ -63,8 +63,8 @@ When running with `--dry-run`,`nflaunch`creates configuration files under `$TMPD
 You can find the actual path in your log output:
 
 ```bash
-[INFO] NextflowLauncher: Job config loaded from args: /var/folders/.../c537479f-.../job_config.json
-[INFO] GCPBatchClient: [DRY-RUN] Will submit the following job request: /var/folders/.../c537479f-.../job_request.txt
+[INFO] NextflowLauncher: Job config loaded from args: /tmp/.../c537479f-.../job_config.json
+[INFO] GCPBatchClient: [DRY-RUN] Will submit the following job request: /tmp/.../c537479f-.../job_request.txt
 ```
 
 Inspect these files to verify:
@@ -167,13 +167,30 @@ processes_exclude: virusinterpreter,orange
 
 ## Monitoring Your Pipeline
 
-After submission, `nflaunch` will output:
+After submission, `nflaunch` provides:
 
-- **Job Name** - Name of the Batch job created
-- **Workflowrun ID** - UUID for tracking this pipeline run
-- **GCS Paths** - Locations of config files, logs, and outputs
+- **Job request file** - Local path to the submitted job configuration
+- **Job logs URL** - Google Cloud Console link to view job logs
+- **Job status command** - `gcloud` command to check job state
+- **Cancel command** - `gcloud` command to cancel the job if needed
+
+Example output:
+```
+Job request submitted: /tmp/.../job_request.txt
+Job logs:   https://console.cloud.google.com/batch/jobsDetail/regions/europe-west4/jobs/nf-runner-abc123/logs?
+Job status: gcloud batch jobs describe --location=europe-west4 nf-runner-abc123 | grep 'state:'
+Cancel job: gcloud batch jobs cancel --location=europe-west4 nf-runner-abc123
+```
 
 ### View Job Status
+
+Use the command provided in the output:
+
+```bash
+gcloud batch jobs describe JOB_NAME --location=REGION | grep 'state:'
+```
+
+Or view full job details:
 
 ```bash
 gcloud batch jobs describe JOB_NAME --location=REGION
@@ -181,16 +198,10 @@ gcloud batch jobs describe JOB_NAME --location=REGION
 
 ### View Logs
 
+Click the console URL provided in the output, or use:
+
 ```bash
 gcloud batch jobs logs JOB_NAME --location=REGION
-```
-
-### Check Cloud Storage
-
-Navigate to your base bucket to see the generated structure:
-
-```bash
-gsutil ls -r gs://BASE_BUCKET/run/
 ```
 
 For detailed information about created resources, see [Cloud Resources](cloud-resources.md).
@@ -245,4 +256,4 @@ Ensure file paths in your `params.yaml` use the `/etc/nextflow/input/` prefix fo
 
 ### Network Errors
 
-Check that Private Google Access is enabled on your subnetwork. See [GCP Setup - Network Configuration](gcp-setup.md#network-configuration).
+Check that Private Google Access is enabled on your subnetwork. See [GCP Setup](gcp-setup.md) for network configuration details.

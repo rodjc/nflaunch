@@ -1,6 +1,6 @@
 # Plugins
 
-nflaunch includes a plugin system to extend and customize pipeline behavior for specific workflows.
+`nflaunch` includes a plugin system to extend and customize pipeline behavior for specific workflows.
 
 ## Overview
 
@@ -57,7 +57,7 @@ nflaunch \
   --sample-id TUMOR123,NORMAL456 \
   --params-file params.yaml \
   --project-id my-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default
@@ -128,9 +128,8 @@ To create a new plugin:
    from nflaunch.plugins.base import Plugin
 
    class MyPlugin(Plugin):
-       def run(self, job_config):
+       def load(self):
            # Your plugin logic
-           return job_config
    ```
 
 3. Register the plugin in `nflaunch/utils/registry.py`:
@@ -212,5 +211,4 @@ Check the `self.job_config.dry_run` flag in your plugin implementation to handle
 
 - [CLI Reference](cli-reference.md) - Plugin-related CLI options
 - [Quickstart Guide](quickstart.md) - Examples using plugins
-- [Architecture](architecture.md) - Plugin system design
 - [oncoanalyser Plugin README](../nflaunch/plugins/oncoanalyser/README.md) - Detailed plugin example

@@ -14,12 +14,11 @@ Ensure you understand the configurations and implications of job submissions bef
 
 ## Table of Contents
 
-- [Key Features](#key-features)
-- [Quick Start](#quick-start)
-- [Documentation](#documentation)
-- [Usage Example](#usage-example)
-- [Contributing](#contributing)
-- [License](#license)
+- [Key Features](https://github.com/rodjc/nflaunch/tree/main?tab=readme-ov-file#key-features)
+- [Quick Start](https://github.com/rodjc/nflaunch/tree/main?tab=readme-ov-file#quick-start)
+- [Documentation](https://github.com/rodjc/nflaunch/tree/main?tab=readme-ov-file#documentation)
+- [Usage Example](https://github.com/rodjc/nflaunch/tree/main?tab=readme-ov-file#usage-example)
+- [License](https://github.com/rodjc/nflaunch/tree/main?tab=readme-ov-file#license)
 
 ---
 
@@ -39,18 +38,9 @@ Ensure you understand the configurations and implications of job submissions bef
 - [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) installed and authenticated
 
 ### Installation
-```bash
-# Recommended: Create and activate a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
 
-# Install nflaunch
-pip install nflaunch
-```
-**Optional:** Add `.venv/bin` to your `PATH` to use `nflaunch` without activating the virtual environment:
 ```bash
-# Bash (for zsh use ~/.zshrc)
-echo "export PATH=\"$(pwd)/.venv/bin:\$PATH\"" >> ~/.bashrc && source ~/.bashrc
+pip install nflaunch
 ```
 
 **Verify installation:**
@@ -58,44 +48,36 @@ echo "export PATH=\"$(pwd)/.venv/bin:\$PATH\"" >> ~/.bashrc && source ~/.bashrc
 nflaunch --help
 ```
 
-For detailed installation instructions, see the [Installation Guide](docs/installation.md).
+For detailed installation instructions, see the [Installation Guide](https://github.com/rodjc/nflaunch/blob/main/docs/installation.md).
 
 ### GCP Setup
 
 Configure required permissions and authentication:
 
 ```bash
-# Set your GCP project
-export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
-
-# Authenticate
 gcloud auth login
 gcloud auth application-default login
-
-# Set default project
-gcloud config set project $GOOGLE_CLOUD_PROJECT
 ```
 
 Enable the following APIs in your GCP project:
 - Google Cloud Batch API (`batch.googleapis.com`)
 - Google Cloud Storage API (`storage.googleapis.com`)
 
-For complete GCP setup instructions, see the [GCP Setup Guide](docs/gcp-setup.md).
+For complete GCP setup instructions, see the [GCP Setup Guide](https://github.com/rodjc/nflaunch/blob/main/docs/gcp-setup.md).
 
 ## Documentation
 
-Comprehensive documentation is available in the [`docs/`](docs/) directory:
+Comprehensive documentation is available in the [`docs/`](https://github.com/rodjc/nflaunch/tree/main/docs/) directory:
 
 ### Getting Started
-- **[Installation Guide](docs/installation.md)** - Detailed installation instructions and setup
-- **[Quickstart Guide](docs/quickstart.md)** - Step-by-step examples to run your first pipeline
-- **[GCP Setup](docs/gcp-setup.md)** - Google Cloud permissions, authentication, and configuration
+- **[Installation Guide](https://github.com/rodjc/nflaunch/blob/main/docs/installation.md)** - Detailed installation instructions and setup
+- **[Quickstart Guide](https://github.com/rodjc/nflaunch/blob/main/docs/quickstart.md)** - Step-by-step examples to run your first pipeline
+- **[GCP Setup](https://github.com/rodjc/nflaunch/blob/main/docs/gcp-setup.md)** - Google Cloud permissions, authentication, and configuration
 
 ### Reference
-- **[CLI Reference](docs/cli-reference.md)** - Complete command-line options and examples
-- **[Cloud Resources](docs/cloud-resources.md)** - Understanding resources created in GCP
-- **[Plugins](docs/plugins.md)** - Plugin system overview and development guide
-- **[Architecture](docs/architecture.md)** - Repository structure and design patterns
+- **[CLI Reference](https://github.com/rodjc/nflaunch/blob/main/docs/cli-reference.md)** - Complete command-line options and examples
+- **[Cloud Resources](https://github.com/rodjc/nflaunch/blob/main/docs/cloud-resources.md)** - Understanding resources created in GCP
+- **[Plugins](https://github.com/rodjc/nflaunch/blob/main/docs/plugins.md)** - Plugin system overview and development guide
 
 ## Usage Example
 
@@ -110,7 +92,7 @@ nflaunch \
   --samplesheet examples/samplesheet.csv \
   --config-file examples/resources.config \
   --project-id my-gcp-project \
-  --region us-central1 \
+  --region europe-west4 \
   --service-account-email sa@my-project.iam.gserviceaccount.com \
   --network default \
   --subnetwork default \
@@ -120,12 +102,12 @@ nflaunch \
 
 Remove `--dry-run` to submit the job.
 
-For more examples and detailed usage instructions, see the [Quickstart Guide](docs/quickstart.md).
+For more examples and detailed usage instructions, see the [Quickstart Guide](https://github.com/rodjc/nflaunch/blob/main/docs/quickstart.md).
 
 ## License
 
-This project is distributed under the terms of the [Apache License 2.0](LICENSE).
+This project is distributed under the terms of the [Apache License 2.0](https://github.com/rodjc/nflaunch/blob/main/LICENSE).
 
 ---
 
-**Documentation**: [docs/](docs/) | **Examples**: [examples/](examples/) | **Changelog**: [CHANGELOG.md](CHANGELOG.md)
+**Documentation**: [docs/](https://github.com/rodjc/nflaunch/tree/main/docs/) | **Examples**: [examples/](https://github.com/rodjc/nflaunch/tree/main/examples/) | **Changelog**: [CHANGELOG.md](https://github.com/rodjc/nflaunch/blob/main/CHANGELOG.md)

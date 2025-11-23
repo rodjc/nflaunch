@@ -1,6 +1,6 @@
 # Google Cloud Platform Setup
 
-This guide covers the GCP permissions, IAM roles, and authentication required to use`nflaunch`with Google Cloud Batch.
+This guide covers the GCP permissions, IAM roles, and authentication required to use `nflaunch` with Google Cloud Batch.
 
 ## Required APIs
 
@@ -76,29 +76,67 @@ Set your default project to avoid conflicts with other projects:
 gcloud config set project YOUR_PROJECT_ID
 ```
 
-### Set Environment Variable (Recommended)
+## Environment Variables
 
-Set the `GOOGLE_CLOUD_PROJECT` environment variable to ensure consistent project usage across tools:
+`nflaunch` supports environment variables to reduce repetitive command-line arguments for Google Cloud configuration. These variables are particularly useful for setting up project-wide or team-wide defaults.
 
-**For Bash users (add to `~/.bashrc` or `~/.bash_profile`):**
+### Supported Environment Variables
+
+| Environment Variable | CLI Equivalent | Description | Example Value |
+|---------------------|----------------|-------------|---------------|
+| `NFL_GCP_PROJECT_ID` | `--project-id` | Google Cloud project ID | `my-project-123` |
+| `NFL_GCP_REGION` | `--region` | Google Cloud region for Batch jobs | `europe-west4` |
+| `NFL_GCP_SERVICE_ACCOUNT` | `--service-account-email` | Service account email for Batch and GCS | `nflaunch-runner@my-project.iam.gserviceaccount.com` |
+| `NFL_GCP_NETWORK` | `--network` | VPC network name | `projects/my-project/global/networks/my-vpc` |
+| `NFL_GCP_SUBNETWORK` | `--subnetwork` | Subnetwork name | `projects/my-project/regions/europe-west4/subnetworks/my-subnet` |
+| `NFL_GCP_BASE_BUCKET` | `--base-bucket` | Base GCS bucket for configs, logs, cache | `gs://my-nflaunch-bucket` or `my-nflaunch-bucket` |
+
+### Precedence Rules
+
+**Command-line arguments always override environment variables.** This allows you to set defaults via environment variables while maintaining the flexibility to override them on a per-run basis.
+
+For example:
 ```bash
-export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+# Set default region
+export NFL_GCP_REGION="europe-west4"
+
+# This run uses europe-west4
+nflaunch --pipeline-name nf-core/rnaseq ...
+
+# This run overrides to use europe-west1
+nflaunch --region europe-west1 --pipeline-name nf-core/rnaseq ...
 ```
 
-**For Zsh users (add to `~/.zshrc`):**
+### Example Configuration
+
+Add to `~/.bashrc` or `~/.bash_profile`
 ```bash
-export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+# nflaunch GCP configuration
+export NFL_GCP_PROJECT_ID="my-project-123"
+export NFL_GCP_REGION="europe-west4"
+export NFL_GCP_SERVICE_ACCOUNT="nflaunch-runner@my-project-123.iam.gserviceaccount.com"
+export NFL_GCP_NETWORK="projects/my-project-123/global/networks/shared-vpc"
+export NFL_GCP_SUBNETWORK="projects/my-project-123/regions/europe-west4/subnetworks/default"
+export NFL_GCP_BASE_BUCKET="gs://my-org-nflaunch"
 ```
 
-To apply immediately in your current session:
+To apply immediately in your current session, run the export commands in your terminal.
+
+### Verifying Configuration
+
+Check which environment variables are set:
+
 ```bash
-export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+env | grep NFL_GCP
 ```
 
-Verify it's set:
-```bash
-echo $GOOGLE_CLOUD_PROJECT
-```
+### Benefits
+
+Using environment variables provides several advantages:
+
+- **Reduced command-line verbosity** - No need to repeat infrastructure settings for each run
+- **Team standardization** - Enforce consistent GCP settings across team members
+- **Environment-specific configs** - Easily switch between dev, staging, and production setups
 
 ## Service Account Creation
 
@@ -129,14 +167,13 @@ gcloud auth list
 gcloud auth application-default print-access-token
 ```
 
-### Verify Permissions
+### Check Permissions
 
 ```bash
-# Test Batch API access
-gcloud batch jobs list --project=YOUR_PROJECT_ID --location=YOUR_REGION
-
-# Test Storage access
-gsutil ls gs://YOUR_BUCKET/
+gcloud projects get-iam-policy YOUR_PROJECT \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:YOUR_SA@PROJECT.iam.gserviceaccount.com" \
+  --format="table(bindings.role)"
 ```
 
 ### Check Enabled APIs
@@ -178,7 +215,7 @@ If the service account cannot be used:
 2. **Apply least privilege** - Grant only the minimum required permissions
 3. **Audit regularly** - Review IAM policies and service account usage
 4. **Use organization policies** - Enforce constraints on resource usage
-5. **Enable audit logs** - Track Batch job submissions and modifications
+5. **Aaudit logs** - Track Batch job submissions and modifications
 
 ## Next Steps
 
