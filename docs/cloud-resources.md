@@ -155,19 +155,19 @@ These files are generated automatically by Nextflow during and after pipeline ex
 
 ## Pipeline Output Directory
 
-Pipeline outputs are stored in the location specified by the `outdir` parameter in your `params.yaml`:
+Pipeline outputs are typically stored based on `publishDir` directives defined in each process. Many pipelines use an `outdir` parameter as a base path:
 
 ```yaml
 outdir: gs://my-bucket/results
 ```
 
-This is **separate** from the run directory and typically contains your final analysis results.
+However, the actual output structure depends on how each process configures its `publishDir`. Check the pipeline's processes to see the complete output organization.
 
 ## Resource Lifecycle
 
 ### Temporary Resources
 
-- **Batch Job**: Removed automatically after completion (configurable retention)
+- **Batch Job**: Removed automatically after completion
 - **Local temp files**: Stored in `$TMPDIR/<WORKFLOWRUN_ID>/` on your machine during submission
 
 ### Persistent Resources
@@ -184,17 +184,17 @@ This is **separate** from the run directory and typically contains your final an
 ```bash
 # Remove work directory for a specific run (after verifying outputs)
 gsutil -m rm -r gs://my-bucket/work/
-
-# Or use Nextflow's cleanup
-nextflow clean -f
 ```
 
 ### Automated Cleanup
 
-Consider setting up lifecycle policies on your bucket:
+Consider setting up lifecycle policies on your bucket to automatically delete old work files.
+
+#### For Non-Versioned Buckets
+
+Delete work directory files older than 7 days:
 
 ```bash
-# Example: Delete work/ files older than 30 days
 gsutil lifecycle set lifecycle.json gs://my-bucket
 ```
 
@@ -206,7 +206,7 @@ gsutil lifecycle set lifecycle.json gs://my-bucket
       {
         "action": {"type": "Delete"},
         "condition": {
-          "age": 30,
+          "age": 7,
           "matchesPrefix": ["work/"]
         }
       }
@@ -214,6 +214,41 @@ gsutil lifecycle set lifecycle.json gs://my-bucket
   }
 }
 ```
+
+#### For Versioned Buckets
+
+If your bucket has versioning enabled, use this rule instead:
+
+**lifecycle.json**:
+```json
+{
+  "lifecycle": {
+    "rule": [
+      {
+        "action": {"type": "Delete"},
+        "condition": {
+          "daysSinceNoncurrentTime": 7,
+          "matchesPrefix": ["work/"]
+        }
+      },
+      {
+        "action": {"type": "Delete"},
+        "condition": {
+          "numNewerVersions": 2,
+          "isLive": false,
+          "matchesPrefix": ["work/"]
+        }
+      }
+    ]
+  }
+}
+```
+
+**Notes**:
+- Ensure your bucket has Object Lifecycle Management enabled
+- The lifecycle rules apply to all objects matching the specified prefix
+- For versioned buckets, `daysSinceNoncurrentTime` deletes non-current versions after 7 days
+- `numNewerVersions` keeps only the 2 most recent versions of deleted objects
 
 ## Monitoring Resources
 
@@ -244,7 +279,7 @@ gsutil du -sh gs://my-bucket/work/
 gcloud batch jobs logs JOB_NAME --location=REGION
 
 # View Nextflow logs in Cloud Storage
-gsutil cat gs://my-bucket/run/<WORKFLOWRUN_ID>/meta/.nextflow.log
+gsutil cat gs://my-bucket/run/<WORKFLOWRUN_ID>/logs/nextflow.log
 ```
 
 ## See Also

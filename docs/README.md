@@ -18,7 +18,6 @@ Welcome to the `nflaunch` documentation. This directory contains comprehensive g
 ### Advanced Topics
 
 - **[Plugins](plugins.md)** - Plugin system overview and usage
-- **[Architecture](architecture.md)** - Repository structure and design
 
 ## Quick Links
 
