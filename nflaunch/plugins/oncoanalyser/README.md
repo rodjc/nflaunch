@@ -71,5 +71,4 @@ TUMOR123_NORMAL456,TUMOR123_NORMAL456,NORMAL456,normal,dna,bai,gs://.../NORMAL45
 
 ## Notes
 
-* In **dry-run mode**, the plugin logs the intended samplesheet path but does not generate the file.
 * This plugin assumes GCS bucket access is properly configured and authenticated using the service account provided to `nflaunch`.
