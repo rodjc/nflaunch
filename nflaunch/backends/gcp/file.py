@@ -217,10 +217,7 @@ class GCPExecutorConfigBuilder(ExecutorConfigBuilder):
 
         log_suffix = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # Include workflowrun_id in the resource labels
-        labels = self.job_config.labels.copy()
-        labels["workflowrun_id"] = self.job_config.workflowrun_id
-        resource_labels = ", ".join(f'"{k}": "{v}"' for k, v in labels.items())
+        resource_labels = ", ".join(f'"{k}": "{v}"' for k, v in self.job_config.labels.items() if v)
 
         template_root = Path(__file__).resolve().parent / "templates"
         template_path = template_root / "gcp.config.template"
