@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-04-16
+
+### Fixed
+- Runner job now uses standard VM provisioning (the `--spot` flag no longer affects runner VM type)
+
+### Added
+- Extended default GCP job labels with pipeline_name and pipeline_version (in addition to workflowrun_id)
+
 ## [0.2.0] - 2025-11-23
 
 ### Added
