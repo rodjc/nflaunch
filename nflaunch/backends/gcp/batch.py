@@ -86,14 +86,9 @@ class GCPBatchClient(BatchClient):
         group = batch_v1.TaskGroup(task_count=1, task_spec=task)
 
         # VM settings
-        provisioning_model = (
-            batch_v1.AllocationPolicy.ProvisioningModel.SPOT
-            if self.job_config.spot
-            else batch_v1.AllocationPolicy.ProvisioningModel.STANDARD
-        )
         instance_policy = batch_v1.AllocationPolicy.InstancePolicy(
             machine_type=self.job_config.machine_type,
-            provisioning_model=provisioning_model,
+            provisioning_model=batch_v1.AllocationPolicy.ProvisioningModel.STANDARD,
         )
         instance_template = batch_v1.AllocationPolicy.InstancePolicyOrTemplate(
             policy=instance_policy
