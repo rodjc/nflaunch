@@ -1,12 +1,36 @@
 """Google Cloud Platform job configuration and builder."""
 
 import os
+import re
 from argparse import Namespace
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from nflaunch.backends.base import JobConfig, JobConfigBuilder
+
+
+def sanitize_gcp_label(value: str) -> str:
+    """Return a GCP-compatible label string derived from `value`.
+
+    The value is lowercased, unsupported characters are replaced with dashes,
+    repeated separators are collapsed, and leading/trailing non-alphanumeric
+    characters are removed.
+    """
+    value = value.lower()
+
+    # Replace invalid chars with "-"
+    value = re.sub(r"[^a-z0-9_-]", "-", value)
+
+    # Collapse multiple dashes/underscores
+    value = re.sub(r"[-_]+", "-", value)
+
+    # Remove leading/trailing non-alphanumeric chars
+    value = re.sub(r"^[^a-z0-9]+", "", value)
+    value = re.sub(r"[^a-z0-9]+$", "", value)
+
+    return value
 
 
 @dataclass(kw_only=True)
@@ -38,11 +62,19 @@ class GCPJobConfig(JobConfig):
     def __post_init__(self) -> None:
         super().__post_init__()
         cpu_count = os.cpu_count() or 1
+        pipeline_path = Path(self.pipeline_name)
         self.upload_max_workers = self.upload_max_workers or cpu_count
         self.remote_cache_path = self.remote_cache_path or f"{self.base_bucket}/cache"
         self.remote_run_path = self.remote_run_path or f"{self.base_bucket}/run"
         self.labels = self.labels or {}
         self.labels["workflowrun_id"] = self.workflowrun_id
+        self.labels["pipeline_name"] = (
+            "local/" + pipeline_path.name if pipeline_path.exists() else self.pipeline_name
+        )
+        self.labels["pipeline_version"] = (
+            "v" + self.pipeline_version if self.pipeline_version else ""
+        )
+        self.labels = {k: sanitize_gcp_label(v) for k, v in self.labels.items() if v}
         self.cpu_milli = self.cpu_milli or 2000
         self.memory_mib = self.memory_mib or 2000
         self.machine_type = self.machine_type or "e2-small"
